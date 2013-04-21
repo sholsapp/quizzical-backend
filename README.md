@@ -10,6 +10,7 @@ Figure out where to get some test data.
 
 For now, can run code like this in a Flask app to generate data:
 
+```python
   quiz = Quiz('quiz1')
   entity1 = Entity('California')
   entity1attr = EntityAttr('capital', 'Sacramento')
@@ -22,4 +23,4 @@ For now, can run code like this in a Flask app to generate data:
   db.session.add(quiz)
   db.session.add(question1)
   db.session.commit()
-
+```
