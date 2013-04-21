@@ -4,6 +4,7 @@ from quizzical import init_webapp
 
 
 workers = 2
+debug=False
 
 
 def on_starting(server):
@@ -11,4 +12,4 @@ def on_starting(server):
 
 
 def post_fork(server, worker):
-  init_webapp()
+  init_webapp(debug=debug)
