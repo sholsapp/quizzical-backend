@@ -28,10 +28,7 @@ def init_database(debug=False):
   """Setup the database for the webapp."""
   app.config['SQLALCHEMY_DATABASE_URI'] = make_conn_str(debug=debug)
   db.init_app(app)
-  # TODO(sholsapp): we can only run this once? figure out how we can keep this
-  # in here and re-init every time. this usually works, not sure why the mysql
-  # setup on heroku explodes here
-  #db.create_all(app=app)
+  db.create_all(app=app)
 
 
 def init_webapp(debug=False):
