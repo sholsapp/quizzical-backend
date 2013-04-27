@@ -1,0 +1,46 @@
+#!/usr/bin/env python
+
+from argparse import ArgumentParser
+
+from quizzical import init_webapp
+from quizzical.model import *
+
+
+def make_countries_quiz():
+  countries = [
+    ('USA', '313,914,040'),
+    ('UK', '62,641,000'),
+    ('Canada', '34,482,779'),
+    ('Mexico', '112,336,538'),
+    ('India', '1,241,491,960'),
+  ]
+  tags = [Tag(tag='Country')]
+  for name, pop in countries:
+    e = Entity(tags)
+    e.attributes.append(EntityAttr('Name', name))
+    e.attributes.append(EntityAttr('Population', pop))
+    db.session.add(e)
+  qform = QuestionFormat('What is the %(attr1)s of %(attr2)s?')
+  country_quiz = Quiz('Countries Quiz')
+  questions = [
+    ('Country', 'name', 'population'),
+  ]
+  for tag, attr1, attr2 in questions:
+    q = Question(tag, attr1, attr2)
+    q.format = qform
+    country_quiz.questions.append(q)
+  db.session.add(country_quiz)
+  db.session.commit()
+
+
+def main(pargs):
+  app = init_webapp(debug=pargs.debug)
+  request_context = app.test_request_context()
+  request_context.push()
+  make_countries_quiz()
+
+if __name__ == '__main__':
+  parser = ArgumentParser()
+  parser.add_argument('--debug', action='store_true')
+  args = parser.parse_args()
+  main(args)

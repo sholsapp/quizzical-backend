@@ -3,6 +3,9 @@
 {% block head %}
 {{ super() }}
 <!-- Put custom CSS/JS here -->
+
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='theme.css') }}">
+
 {% endblock %}
 
 {% block body_content %}
