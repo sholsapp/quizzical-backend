@@ -1,3 +1,4 @@
+from random import randint
 import logging
 
 from flask import Flask, render_template, jsonify, url_for
@@ -49,17 +50,39 @@ def index():
 
 @app.route('/api/v1/make_question/<quizid>', methods=['GET'])
 def make_question(quizid):
-  tags = set()
-  q = db.session.query(Quiz).filter(Quiz.id == quizid).first()
-  for q in q.questions:
-    entity = db.session.query(Entity).filter(Entity.tags.any(tag=q.tag)).all()
-    print q.format.format_string
-    print entity
-    print q.format.format_string % {'attr1': q.attr1, 'attr2': q.attr2}
-    print q.tag
-    print q.attr1
-    print q.attr2
-  return jsonify({'rsp': None})
+  quiz = db.session.query(Quiz).filter(Quiz.id == quizid).first()
+  # Get a random abstract question
+  q = quiz.questions[randint(0, len(quiz.questions) - 1)]
+  # And get the relevant entities for that abstract question
+  entities = db.session.query(Entity).filter(
+    Entity.tags.any(tag=q.tag)
+  ).all()
+  # Randomly select 4 unique entities
+  randoms = set()
+  while len(randoms) < 4:
+    randoms.add(entities[randint(0, len(entities) - 1)])
+  randoms = list(randoms)
+
+  def _make_choice(idx, truth):
+    return {
+      'attr_value': randoms[idx].get_attr(q.attr2).attr_value,
+      'correct': truth,
+    }
+
+  # Prepare the result object
+  question = {
+    'question': q.format.format_string % {
+      'attr1': randoms[0].get_attr(q.attr2).attr_name.lower(),
+      'attr2': randoms[0].get_attr(q.attr1).attr_value,
+    },
+    'choices': [
+      _make_choice(0, True),
+      _make_choice(1, False),
+      _make_choice(2, False),
+      _make_choice(3, False),
+    ],
+  }
+  return jsonify({'rsp': question})
 
 #
 # These are raw views on the database tables

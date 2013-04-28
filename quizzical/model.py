@@ -38,7 +38,7 @@ class Quiz(db.Model):
 class Tag(db.Model):
   __tablename__ = 'tags'
   id = Column(Integer, primary_key=True)
-  tag = Column(String, nullable=False, unique=True)
+  tag = Column(String(64), nullable=False, unique=True)
   def __repr__(self):
     return "<Tag('%s', '%s')>" % (self.id, self.tag)
   def tojson(self):
@@ -50,10 +50,18 @@ class Entity(db.Model):
   id = Column(Integer, primary_key=True)
   attributes = relationship('EntityAttr', backref='entity')
   tags = relationship('Tag', secondary=tag_association_table)
+
   def __repr__(self):
     return '<Entity %r>' % (self.id)
+
   def __init__(self, tags):
     self.tags.extend(tags)
+
+  def get_attr(self, name):
+    for attr in self.attributes:
+      if attr.attr_name.lower() == name.lower():
+        return attr
+
   def tojson(self):
     return {
       'tags': [t.tojson() for t in self.tags],
@@ -69,7 +77,7 @@ class EntityAttr(db.Model):
   attr_value = Column(String(256))
   is_img = Column(Boolean(256))
   def __repr__(self):
-    return '<EntityAttr %r %r %r %r>' % (self.id, self.entity_id, self.key, self.value)
+    return '<EntityAttr %r %r %r %r>' % (self.id, self.entity_id, self.attr_name, self.attr_value)
   def __init__(self, key, value, img=False):
     self.attr_name = key
     self.attr_value = value
